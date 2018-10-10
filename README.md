@@ -2,14 +2,14 @@
 
 ## Table of contents
 
-- [Introduction]()
-- [Project Description]()
-    - [Overview]()
-    - [Ranking Layer]()
-    - [Testing stage]()
-    - [Triplet Sampling Layer]()
-    - [Tips]()
-- [References]()
+- [Introduction](#introduction)
+- [Project Description](#project-description)
+    - [Overview](#overview)
+    - [Ranking Layer](#ranking-layer)
+    - [Testing stage](#testing-stage)
+    - [Triplet Sampling Layer](#triplet-sampling-layer)
+    - [Tips](#tips)
+- [References](#references)
 
 
 ## Introduction
