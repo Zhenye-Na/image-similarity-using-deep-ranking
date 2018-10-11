@@ -55,7 +55,7 @@ $D$ is the **Euclidean Distance** between $f(p_i)$ and $f(p_i^{+/-})$.
 $$ D(p, q) = \sqrt{(q_1 − p_1)^2 + (q_2 − p_2)^2 + \dots + (q_n − p_n)^2} $$
 
 
-$g$ is the gap parameter. We use the default value of $1.0$, but you can tune it if you’d like (make sure it's positive).
+$g$ is the gap parameter that regularizes the gap between the distance of two image pairs: $(p_i, p_i^+)$ and $(p_i, p_i^-)$. We use the default value of $1.0$, but you can tune it if you’d like (make sure it's positive).
 
 
 ### Testing stage
