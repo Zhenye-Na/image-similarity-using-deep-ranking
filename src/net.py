@@ -10,15 +10,13 @@ import os
 import torch
 import torchvision
 import torch.nn as nn
+import torch.nn.functional as F
 import torchvision.transforms as transforms
 
 from torch.autograd import Variable
-from model import *
-
 from resnet import resnet_cifar
 
 import argparse
-
 parser = argparse.ArgumentParser()
 
 # model_urls
@@ -51,6 +49,9 @@ class ConvNet(nn.Module):
         # self.classifier = nn.Sequential(
         #     nn.Linear(num_ftrs, num_classes)
         # )
+        self.maxpool3x3 = nn.MaxPool2d(kernel_size=3)
+        self.maxpool7x7 = nn.MaxPool2d(kernel_size=7)
+        self.dropout = nn.Dropout()
 
     def forward(self, x):
         """Forward pass of ResNet model."""
@@ -63,3 +64,10 @@ class ConvNet(nn.Module):
 def convnet():
     """ConvNet in multiscale network structure in Fig 3."""
     resnet = resnet18(model_urls)
+
+
+
+    F.normalize(x, p=2, dim=1)
+
+
+# TODO:

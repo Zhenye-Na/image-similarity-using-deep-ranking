@@ -66,11 +66,11 @@ def TinyImageNetLoader(train_root, test_root, batch_size_train, batch_size_test)
 
     trainset = TinyImageNet(root=train_root, transform=transform_train)
     trainloader = torch.utils.data.DataLoader(
-        trainset, batch_size=batch_size_train, sampler=TripletSampler, num_workers=4)
+        trainset, batch_size=batch_size_train, sampler=TripletSampler, num_workers=8)
 
     testset = TinyImageNet(root=test_root, transform=transform_test)
     testloader = torch.utils.data.DataLoader(
-        testset, batch_size=batch_size_test, sampler=TripletSampler, num_workers=4)
+        testset, batch_size=batch_size_test, sampler=TripletSampler, num_workers=8)
 
     return trainloader, testloader
 
