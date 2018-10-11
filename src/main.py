@@ -16,7 +16,6 @@ import torchvision.transforms as transforms
 
 import argparse
 
-from resnet import resnet_cifar
 from utils import *
 
 
@@ -45,14 +44,34 @@ args = parser.parse_args()
 def main():
     """Main pipeline of Image Similarity using Deep Ranking."""
 
-    # preprocess
-    train_info = preprocess(file=os.path.join(args.dataroot, "words.txt"))
+    start_epoch = 0
+
+    # resume training from the last time
+    if args.resume:
+        # Load checkpoint
+        print('==> Resuming from checkpoint ...')
+        assert os.path.isdir(
+            '../checkpoint'), 'Error: no checkpoint directory found!'
+        checkpoint = torch.load(args.ckptroot)
+        net = checkpoint['net']
+        start_epoch = checkpoint['epoch']
+    else:
+        # start over
+        print('==> Building new ResNet model ...')
+        net = resnet_cifar()
+
+    print("==> Initialize CUDA support for ResNet model ...")
+
+    # For training on GPU, we need to transfer net and data onto the GPU
+    # http://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html#training-on-gpu
+    if args.is_gpu:
+        net = torch.nn.DataParallel(net).cuda()
+        cudnn.benchmark = True
+
+    trainloader, testloader = TinyImageNetLoader(train_root, test_root, batch_size_train, batch_size_test)
 
 
-
-
-
-
+    train(net, trainloader, testloader)
 
 
 

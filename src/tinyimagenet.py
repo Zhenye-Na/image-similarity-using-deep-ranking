@@ -34,11 +34,15 @@ class TinyImageNet(Dataset):
         self.train_list = os.listdir(self.train_root)
         self.test_list = os.listdir(self.test_root)
 
+        # preprocess
+        self.info = preprocess(file=os.path.join(root, "words.txt"))
 
 
     def __getitem__(self, index):
         """Get item and label in dataset."""
         # TODO: 1. Read one data from file (e.g. using numpy.fromfile, PIL.Image.open).
+
+
 
         # TODO: 2. Preprocess the data (e.g. torchvision.Transform).
         if self.transform is not None:

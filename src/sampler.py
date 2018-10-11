@@ -20,15 +20,15 @@ class TripletSampler(Sampler):
         self.desired_samples = desired_samples
         self.shuffle=shuffle
 
-    def gen_sample_array(self):
+    def _gen_sample_array(self):
         n_repeats = self.desired_samples / self.data_samples
         self.sample_idx_array = torch.range(0,self.data_samples-1).repeat(n_repeats).long()
-        if self.shuffle:
-          self.sample_idx_array = self.sample_idx_array[torch.randperm(len(self.sample_idx_array)]
+        # if self.shuffle:
+        #   self.sample_idx_array = self.sample_idx_array[torch.randperm(len(self.sample_idx_array)]
         return self.sample_idx_array
 
     def __iter__(self):
-        return iter(self.gen_sample_array())
+        return iter(self._gen_sample_array())
 
     def __len__(self):
         return self.desired_samples
