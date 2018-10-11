@@ -3,6 +3,7 @@
 ## Table of contents
 
 - [Introduction](#introduction)
+- [Dataset](#dataset)
 - [Project Description](#project-description)
     - [Overview](#overview)
     - [Ranking Layer](#ranking-layer)
@@ -22,6 +23,13 @@ The task of image similarity is retrieve a set of `N` images closest to the quer
 <p align="center">
 <img src="./fig/query-image.png" width="80%">
 </p>
+
+
+## Dataset
+
+For this project, we will use the [Tiny ImageNet](https://tiny-imagenet.herokuapp.com/) dataset. Tiny ImageNet Challenge is the default course project for Stanford [CS231N](http://cs231n.stanford.edu/). It runs similar to the [ImageNet challenge (ILSVRC)](http://www.image-net.org/challenges/LSVRC/2014/).
+
+Tiny Imagenet has `200` classes. Each class has `500` training images, `50` validation images, and `50` test images. Training and validation sets with images and annotations have been released. As well as both class labels and bounding boxes as annotations; however, you are asked only to predict the class label of each image without localizing the objects. The test set is released without labels. You can download the whole tiny ImageNet dataset here.
 
 
 ## Project Description
@@ -85,5 +93,5 @@ Negative samples are composed of two different types of samples: in-class and ou
 
 ## References
 
-[1] bla [*"Learning Fine-grained Image Similarity with Deep Ranking"*](https://arxiv.org/abs/1404.4661). arXiv:1404.4661  
+[1] Jiang Wang, Yang song, Thomas Leung, Chuck Rosenberg, Jinbin Wang, James Philbin, Bo Chen, Ying Wu. [*"Learning Fine-grained Image Similarity with Deep Ranking"*](https://arxiv.org/abs/1404.4661). arXiv:1404.4661  
 [2] Akarsh Zingade [*"Image Similarity using Deep Ranking"*](https://medium.com/@akarshzingade/image-similarity-using-deep-ranking-c1bd83855978)
