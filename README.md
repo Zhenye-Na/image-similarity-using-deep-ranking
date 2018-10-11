@@ -94,4 +94,6 @@ Negative samples are composed of two different types of samples: in-class and ou
 ## References
 
 [1] Jiang Wang, Yang song, Thomas Leung, Chuck Rosenberg, Jinbin Wang, James Philbin, Bo Chen, Ying Wu. [*"Learning Fine-grained Image Similarity with Deep Ranking"*](https://arxiv.org/abs/1404.4661). arXiv:1404.4661  
-[2] Akarsh Zingade [*"Image Similarity using Deep Ranking"*](https://medium.com/@akarshzingade/image-similarity-using-deep-ranking-c1bd83855978)
+[2] Akarsh Zingade [*"Image Similarity using Deep Ranking"*](https://medium.com/@akarshzingade/image-similarity-using-deep-ranking-c1bd83855978)  
+[3] Pytorch Discussion. [Feedback on PyTorch for Kaggle competitions](https://discuss.pytorch.org/t/feedback-on-pytorch-for-kaggle-competitions/2252)  
+[4] 
