@@ -6,28 +6,85 @@ references: https://static.googleusercontent.com/media/research.google.com/en//p
 @author: Zhenye Na
 """
 
-import os
+import sys
 
-# from torch.utils.data import Dataset, DataLoader
-from torch.utils.data.dataset import Dataset
+from sampler import TripletSampler
 
-class TinyImageNet(Dataset):
-    """TinyImageNet."""
 
-    def __init__(self, root="/projects/training/bauh/tiny-imagenet-200/", transform=None):
-        """TinyImageNet Class Builder."""
-        # stuff
-        self.transform = transform
-        self.train_root = root + "train/"
-        self.test_root = root + "val/"
+def preprocess(file="../tiny-imagenet-200/words.txt"):
+    """
+    Preprocess training images and labels.
 
-    def __getitem__(self, index):
-        # stuff
+    Args:
+        file: txt file containing images directory and labels
+    Returns:
+        lines: list of lists which contains folder names and labels
+    """
+    with open(file, 'r') as fd:
+        lines = [ line.strip().split("\t") for line in fd.readlines() ]
 
-        if self.transform is not None:
-            img = self.transform(img)
+    # lines[0] is the directory name of images in classes included in lines[1]
+    for line in lines:
+        line[1] = line[1].split(", ")
 
-        return (img, label)
+    return lines
 
-    def __len__(self):
-        return count # of how many examples(images?) you have
+
+
+def TinyImageNetLoader(train_root, test_root, batch_size_train, batch_size_test):
+    """
+    Tiny ImageNet Loader.
+
+    Args:
+        train_root:
+        test_root:
+        batch_size_train:
+        batch_size_test:
+
+    Return:
+        trainloader:
+        testloader:
+    """
+    # Normalize training set together with augmentation
+    transform_train = transforms.Compose([
+        transforms.RandomResizedCrop(224),
+        transforms.RandomHorizontalFlip(),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    ])
+
+    # Normalize test set same as training set without augmentation
+    transform_test = transforms.Compose([
+        transforms.Resize(224),
+        transforms.CenterCrop(224),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    ])
+
+    # Loading Tiny ImageNet dataset
+    print("==> Preparing Tiny ImageNet dataset ...")
+
+    trainset = TinyImageNet(root=train_root, transform=transform_train)
+    trainloader = torch.utils.data.DataLoader(
+        trainset, batch_size=batch_size_train, sampler=TripletSampler, num_workers=4)
+
+    testset = TinyImageNet(root=test_root, transform=transform_test)
+    testloader = torch.utils.data.DataLoader(
+        testset, batch_size=batch_size_test, sampler=TripletSampler, num_workers=4)
+
+    return trainloader, testloader
+
+
+def train():
+    """
+    Training process.
+
+    Args:
+        net: Network model
+    """
+    pass
+
+
+
+
+# HACK:
