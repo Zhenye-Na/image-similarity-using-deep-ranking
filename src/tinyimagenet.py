@@ -42,7 +42,9 @@ class TinyImageNet(Dataset):
         """Get item and label in dataset."""
         # TODO: 1. Read one data from file (e.g. using numpy.fromfile, PIL.Image.open).
 
-
+        for file in self.train_list:
+            imgdir = os.path.join(self.root, file)
+            self.train_data.append(io.imread(imgdir))
 
         # TODO: 2. Preprocess the data (e.g. torchvision.Transform).
         if self.transform is not None:

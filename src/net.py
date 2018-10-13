@@ -45,19 +45,24 @@ class ConvNet(nn.Module):
 
         # Everything except the last linear layer
         self.features = nn.Sequential(*list(resnet.children())[:-1])
-        # num_ftrs = resnet.fc.in_features
-        # self.classifier = nn.Sequential(
-        #     nn.Linear(num_ftrs, num_classes)
-        # )
+        num_ftrs = resnet.fc.in_features
+        self.fc1 = nn.Linear(num_ftrs, 4096)
+        self.fc2 = nn.Linear(4096, 4096)
         self.maxpool3x3 = nn.MaxPool2d(kernel_size=3)
         self.maxpool7x7 = nn.MaxPool2d(kernel_size=7)
         self.dropout = nn.Dropout()
+        self.relu = nn.ReLU()
 
     def forward(self, x):
         """Forward pass of ResNet model."""
         out = self.features(x)
-        # out = out.view(out.size(0), -1)
-        # out = self.classifier(out)
+        out = out.view(out.size(0), -1)
+        out = self.fc1(out)
+        out = self.relu(out)
+        out = self.dropout(out)
+        out = self.fc2(out)
+        out = self.relu(out)
+        out = self.dropout(out)
         return out
 
 
