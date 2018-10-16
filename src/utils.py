@@ -13,7 +13,7 @@ from sampler import TripletSampler
 
 def preprocess(file="../tiny-imagenet-200/words.txt"):
     """
-    Preprocess training images and labels.
+    Preprocess reading training images and labels.
 
     Args:
         file: txt file containing images directory and labels
@@ -28,7 +28,6 @@ def preprocess(file="../tiny-imagenet-200/words.txt"):
         line[1] = line[1].split(", ")
 
     return lines
-
 
 
 def TinyImageNetLoader(train_root, test_root, batch_size_train, batch_size_test):
@@ -65,12 +64,10 @@ def TinyImageNetLoader(train_root, test_root, batch_size_train, batch_size_test)
     print("==> Preparing Tiny ImageNet dataset ...")
 
     trainset = TinyImageNet(root=train_root, transform=transform_train)
-    trainloader = torch.utils.data.DataLoader(
-        trainset, batch_size=batch_size_train, sampler=TripletSampler, num_workers=8)
+    trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size_train, num_workers=32)
 
     testset = TinyImageNet(root=test_root, transform=transform_test)
-    testloader = torch.utils.data.DataLoader(
-        testset, batch_size=batch_size_test, sampler=TripletSampler, num_workers=8)
+    testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size_test, num_workers=32)
 
     return trainloader, testloader
 

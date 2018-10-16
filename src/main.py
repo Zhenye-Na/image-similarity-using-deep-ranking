@@ -17,7 +17,7 @@ import torchvision.transforms as transforms
 import argparse
 
 from utils import *
-
+from net import *
 
 parser = argparse.ArgumentParser()
 
@@ -26,8 +26,10 @@ parser.add_argument('--dataroot', type=str, default="../data", help='path to dat
 parser.add_argument('--ckptroot', type=str, default="../checkpoint/ckpt.t7", help='path to checkpoint')
 
 # hyperparameters settings
-parser.add_argument('--lr', type=float, default=0.01, help='learning rate')
+parser.add_argument('--g', type=float, default=1.0, help='gap parameter')
+parser.add_argument('--lr', type=float, default=0.001, help='learning rate')
 parser.add_argument('--momentum', type=float, default=0.9, help='momentum factor')
+parser.add_argument('--nesterov', type=bool, default=True, help='enables Nesterov momentum')
 parser.add_argument('--weight_decay', type=float, default=1e-5, help='weight decay (L2 penalty)')
 parser.add_argument('--epochs', type=int, default=500, help='number of epochs to train')
 parser.add_argument('--batch_size_train', type=int, default=129, help='training set input batch size')
@@ -36,6 +38,9 @@ parser.add_argument('--batch_size_test', type=int, default=256, help='test set i
 # training settings
 parser.add_argument('--resume', type=bool, default=False, help='whether re-training from ckpt')
 parser.add_argument('--is_gpu', type=bool, default=False, help='whether training using GPU')
+
+# model_urls
+parser.add_argument('--model_url', type=str, default="https://download.pytorch.org/models/resnet18-5c106cde.pth", help='model url of resnet-18')
 
 # parse the arguments
 args = parser.parse_args()
@@ -58,7 +63,7 @@ def main():
     else:
         # start over
         print('==> Building new ResNet model ...')
-        net = resnet_cifar()
+        net = Network()
 
     print("==> Initialize CUDA support for ResNet model ...")
 
