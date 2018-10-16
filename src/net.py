@@ -37,12 +37,6 @@ def resnet101(pretrained=True):
     return resnet101
 
 
-
-# def network(model_urls):
-#     """ConvNet in multiscale network structure in Fig 3."""
-#     resnet = resnet101()
-
-
 class TripletNet(nn.Module):
     """Triplet Network."""
     def __init__(self, embeddingnet):
@@ -52,7 +46,6 @@ class TripletNet(nn.Module):
 
     def forward(self, a, p, n):
         """Forward pass."""
-
         # anchor
         embedded_a = self.embeddingnet(a)
 
@@ -65,14 +58,12 @@ class TripletNet(nn.Module):
         # dist_a = F.pairwise_distance(embedded_x, embedded_y, 2)
         # dist_b = F.pairwise_distance(embedded_x, embedded_z, 2)
         # dist_a, dist_b,
-
         # return embedded_x, embedded_y, embedded_z
         return embedded_a, embedded_p, embedded_n
 
 
-
 class EmbeddingNet(nn.Module):
-    """docstring for EmbeddingNet."""
+    """EmbeddingNet."""
 
     def __init__(self, convnet):
         """Initialize Network model in Deep Ranking."""
@@ -137,6 +128,3 @@ class ConvNet(nn.Module):
         out = self.fc1(out)
 
         return out
-
-
-# TODO:

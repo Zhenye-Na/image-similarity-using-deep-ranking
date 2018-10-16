@@ -6,7 +6,6 @@ references: https://static.googleusercontent.com/media/research.google.com/en//p
 @author: Zhenye Na
 """
 
-
 from __future__ import print_function
 from PIL import Image
 from skimage import io
@@ -16,11 +15,68 @@ import random
 import numpy as np
 
 import torch.utils.data
-
-# from torch.utils.data import Dataset, DataLoader
+import torchvision.transforms as transforms
 from torch.utils.data.dataset import Dataset
 
-# from utils import preprocess
+
+def image_loader(path):
+    """Image Loader helper function."""
+    return Image.open(path.rstrip("\n")).convert('RGB')
+
+
+class TripletImageLoader(Dataset):
+    """Image Loader for Tiny ImageNet."""
+
+    def __init__(self, base_path, triplets_filename, transform=None, loader=image_loader):
+        """
+        Image Loader Builder.
+
+        Args:
+            base_path:
+            filenames_filename: text file with each line containing the path to an image e.g., `images/class1/sample.JPEG`
+            triplets_filename: A text file with each line containing three images
+            transform: torchvision.transforms
+            loader: loader for each image
+        """
+        self.base_path = base_path
+
+        # self.filenamelist = []
+        # for line in open(filenames_filename):
+        #     self.filenamelist.append(line.rstrip('\n'))
+
+        triplets = []
+        for line in open(triplets_filename):
+            line_array = line.split(",")
+            triplets.append((line_array[0], line_array[1], line_array[2]))
+        self.triplets = triplets
+
+        self.transform = transform
+        self.loader = loader
+
+    def __getitem__(self, index):
+        """Get triplets in dataset."""
+        # path1, path2, path3 = self.triplets[index]
+        # img1 = self.loader(os.path.join(self.base_path, self.filenamelist[int(path1)]))
+        # img2 = self.loader(os.path.join(self.base_path, self.filenamelist[int(path2)]))
+        # img3 = self.loader(os.path.join(self.base_path, self.filenamelist[int(path3)]))
+        path1, path2, path3 = self.triplets[index]
+        a = self.loader(os.path.join(self.base_path, path1))
+        p = self.loader(os.path.join(self.base_path, path2))
+        n = self.loader(os.path.join(self.base_path, path3))
+
+        if self.transform is not None:
+            a = self.transform(a)
+            p = self.transform(p)
+            n = self.transform(n)
+
+        return a, p, n
+
+    def __len__(self):
+        return len(self.triplets)
+
+
+
+
 
 
 def gen_idx(idx, mode):
@@ -85,15 +141,6 @@ class TinyImageNet(Dataset):
 
             # self.train_list = os.listdir(os.path.join(self.train_root, "iamges"))
             self.test_list = os.listdir(os.path.join(root, "val", "images"))
-
-        # # read training images
-        # for folder_name, files in self.train_dict.items():
-        #     training_images = []
-        #     for file in files:
-        #         imgdir = os.path.join(root, "train", folder_name, "images", file)
-        #         training_images.append(io.imread(imgdir))
-        #     # training_images = np.array(training_images)
-        #     self.train_images.append(training_images)
 
 
             # read test images

@@ -16,25 +16,25 @@ import torchvision.transforms as transforms
 
 import argparse
 
-from utils import *
+from utils import TinyImageNetLoader, train
 from net import *
 
 
+# Instantiate the parser
 parser = argparse.ArgumentParser()
 
 # directory
-parser.add_argument('--dataroot', type=str, default="../data", help='path to dataset')
 parser.add_argument('--ckptroot', type=str, default="../checkpoint/ckpt.t7", help='path to checkpoint')
-parser.add_argument('--trainroot', type=str, default="../tiny-imagenet-200", help='path to dataset')
+parser.add_argument('--trainroot', type=str, default="", help='train root')
 
 # hyperparameters settings
 parser.add_argument('--lr', type=float, default=0.001, help='learning rate')
 parser.add_argument('--momentum', type=float, default=0.9, help='momentum factor')
 parser.add_argument('--nesterov', type=bool, default=True, help='enables Nesterov momentum')
 parser.add_argument('--weight_decay', type=float, default=1e-5, help='weight decay (L2 penalty)')
-parser.add_argument('--epochs', type=int, default=35, help='number of epochs to train')
-parser.add_argument('--batch_size_train', type=int, default=129, help='training set input batch size')
-parser.add_argument('--batch_size_test', type=int, default=129, help='test set input batch size')
+parser.add_argument('--epochs', type=int, default=50, help='number of epochs to train')
+parser.add_argument('--batch_size_train', type=int, default=150, help='training set input batch size')
+parser.add_argument('--batch_size_test', type=int, default=150, help='test set input batch size')
 parser.add_argument('--start_epoch', type=int, default=0, help='starting epoch')
 
 # loss function settings
@@ -90,8 +90,10 @@ def main():
                                                            patience=10,
                                                            verbose=True)
 
+    # load triplet dataset
     trainloader, testloader = TinyImageNetLoader(args.trainroot, args.trainroot, args.batch_size_train, args.batch_size_test)
 
+    # train model
     train(net, criterion, optimizer, scheduler, trainloader, testloader, args.start_epoch, args.epochs, args.is_gpu)
 
 

@@ -6,20 +6,31 @@ references: https://static.googleusercontent.com/media/research.google.com/en//p
 @author: Zhenye Na
 """
 
-import torch
-import torchvision
 import numpy as np
 
-from tinyimagenet import *
+from PIL import Image
+from skimage import io
 
-def gen_mean_std(dataset):
-    dataloader = torch.utils.data.DataLoader(dataset, batch_size=64, shuffle=False, num_workers=2)
-    train = iter(dataloader).next()[0]
-    mean = np.mean(train.numpy(), axis=(0, 2, 3))
-    std = np.std(train.numpy(), axis=(0, 2, 3))
+
+def gen_mean_std():
+    image_list = []
+    with open("../triplets.txt") as f:
+        lines = [line.rstrip('\n').split(",") for line in f]
+        for line in lines:
+            image_list.extend(line)
+
+    images = []
+
+    for image in image_list:
+        img = np.asarray(Image.open(image).convert('RGB'))
+        images.append(img)
+
+    images = np.array(images)
+    mean = np.mean(images, axis=2)
+    std = np.mean(images, axis=2)
+
     return mean, std
 
 if __name__=='__main__':
-    trainset = TinyImageNet(root="../tiny-imagenet-200")
-    mean, std = gen_mean_std(trainset)
+    mean, std = gen_mean_std()
     print(mean, std)

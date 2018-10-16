@@ -16,10 +16,10 @@ import torchvision.transforms as transforms
 
 from torch.autograd import Variable
 
-from tinyimagenet import TinyImageNet
+from imageloader import TripletImageLoader
 
 
-def TinyImageNetLoader(train_root, test_root, batch_size_train, batch_size_test):
+def TinyImageNetLoader(trainroot, test_root, batch_size_train, batch_size_test):
     """
     Tiny ImageNet Loader.
 
@@ -41,24 +41,24 @@ def TinyImageNetLoader(train_root, test_root, batch_size_train, batch_size_test)
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
 
-    # Normalize test set same as training set without augmentation
-    transform_test = transforms.Compose([
-        transforms.Resize(224),
-        transforms.CenterCrop(224),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-    ])
+    # # Normalize test set same as training set without augmentation
+    # transform_test = transforms.Compose([
+    #     transforms.Resize(224),
+    #     transforms.CenterCrop(224),
+    #     transforms.ToTensor(),
+    #     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    # ])
 
     # Loading Tiny ImageNet dataset
     print("==> Preparing Tiny ImageNet dataset ...")
 
-    trainset = TinyImageNet(root=train_root, transform=transform_train, train=True)
+    trainset = TripletImageLoader(base_path=trainroot, triplets_filename="../triplets.txt", transform=transform_train)
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size_train, num_workers=32)
 
-    testset = TinyImageNet(root=test_root, transform=transform_test)
-    testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size_test, num_workers=32)
+    # testset = TripletImageLoader(root=test_root, transform=transform_test)
+    # testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size_test, num_workers=32)
 
-    return trainloader, testloader
+    return trainloader
 
 
 def train(net, criterion, optimizer, scheduler, trainloader,
@@ -80,7 +80,7 @@ def train(net, criterion, optimizer, scheduler, trainloader,
 
     # how many batches to wait before logging training status
     log_interval = 20
-
+    net.train()
     for epoch in range(start_epoch, epochs + start_epoch):
 
         running_loss = 0.0
@@ -104,21 +104,12 @@ def train(net, criterion, optimizer, scheduler, trainloader,
             # print statistics
             running_loss += loss.data[0]
 
-            # if batch_idx % log_interval == 0:
-            #     print('Train Epoch: {} [{}/{}]\t'
-            #           'Loss: {:.4f} ({:.4f}) \t'
-            #           'Acc: {:.2f}% ({:.2f}%) \t'
-            #           'Emb_Norm: {:.2f} ({:.2f})'.format(
-            #         epoch, batch_idx * len(data1), len(train_loader.dataset),
-            #         losses.val, losses.avg,
-            #         100. * accs.val, 100. * accs.avg, emb_norms.val, emb_norms.avg))
-
         # Normalizing the loss by the total number of train batches
         running_loss /= len(trainloader)
 
         # Calculate training/test set accuracy of the existing model
-        # train_accuracy = calculate_accuracy(net, trainloader, is_gpu)
-        # test_accuracy = calculate_accuracy(net, testloader, is_gpu)
+        train_accuracy = calculate_accuracy(net, trainloader, is_gpu)
+        test_accuracy = calculate_accuracy(net, testloader, is_gpu)
 
         print("Training Epoch: {0} | Loss: {1} | Training Acc: {2}% | Test Acc: {3}%".format(epoch+1, running_loss, train_accuracy, test_accuracy))
 
@@ -136,7 +127,23 @@ def train(net, criterion, optimizer, scheduler, trainloader,
 
 
 def calculate_accuracy(net, loader, is_gpu):
-    """Calculate accuracy for TripletNet model."""
+    """
+    Calculate accuracy for TripletNet model.
+
+    Try using numpy to do this efficiently (otherwise it'll be too slow).
+
+    For example:
+    1. Form 2d array: Number of training images * size of embedding
+    2. For a single test embedding, repeat the embedding so that it's the same size as the array in 1)
+    3. Perform subtraction between the two 2D arrays
+    4, Take L2 norm of the 2d array (after subtraction)
+    5. Get the 30 min values (argmin might do the trick)
+    6. Repeat for the rest of the embeddings in the test set
+
+    I wouldn't think this would be too slow (10^4 comparisons), especially if you multi-threaded it.
+    P.S. - Kd-trees sounds like a good idea as well.
+
+    """
     pass
 
 
@@ -149,11 +156,8 @@ def calculate_distance(i1, i2):
     Args:
         i1: query image
         i2: ranked result
-
     """
     return np.sum((i1 - i2) ** 2)
-
-
 
 
 def preprocess(file="../tiny-imagenet-200/words.txt"):
