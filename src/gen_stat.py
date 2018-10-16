@@ -8,10 +8,9 @@ references: https://static.googleusercontent.com/media/research.google.com/en//p
 
 import torch
 import torchvision
-import torchvision.transforms as transforms
 import numpy as np
 
-from Pokemon import *
+from tinyimagenet import *
 
 def gen_mean_std(dataset):
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=64, shuffle=False, num_workers=2)
@@ -21,6 +20,6 @@ def gen_mean_std(dataset):
     return mean, std
 
 if __name__=='__main__':
-    trainset = Pokemon(root="../data/preprocessed_data", transform=train_transform)
+    trainset = TinyImageNet(root="../tiny-imagenet-200")
     mean, std = gen_mean_std(trainset)
     print(mean, std)
