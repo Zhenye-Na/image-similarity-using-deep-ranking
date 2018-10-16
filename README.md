@@ -1,5 +1,7 @@
 # Image Similarity using Deep Ranking
 
+> Mathjax/Latex is heavily used in this README file. Please download [MathJax Plugin for Github](https://chrome.google.com/webstore/detail/mathjax-plugin-for-github/ioemnmodlmafdkllaclgeombjnmnbima) in order to render Mathjax/Latex in Github correctly.
+
 ## Table of contents
 
 - [Introduction](#introduction)
@@ -29,7 +31,7 @@ The task of image similarity is retrieve a set of `N` images closest to the quer
 
 For this project, we will use the [Tiny ImageNet](https://tiny-imagenet.herokuapp.com/) dataset. Tiny ImageNet Challenge is the default course project for Stanford [CS231N](http://cs231n.stanford.edu/). It runs similar to the [ImageNet challenge (ILSVRC)](http://www.image-net.org/challenges/LSVRC/2014/).
 
-Tiny Imagenet has `200` classes. Each class has `500` training images, `50` validation images, and `50` test images. Training and validation sets with images and annotations have been released. As well as both class labels and bounding boxes as annotations; however, you are asked only to predict the class label of each image without localizing the objects. The test set is released without labels. You can download the whole tiny ImageNet dataset here.
+Tiny Imagenet has `200` classes. Each class has `500` training images, `50` validation images, and `50` test images. Training and validation sets with images and annotations have been released. As well as both class labels and bounding boxes as annotations; however, you are asked only to predict the class label of each image without localizing the objects. The test set is released without labels. You can download the whole tiny ImageNet dataset [here](https://tiny-imagenet.herokuapp.com/).
 
 
 ## Project Description
@@ -53,26 +55,17 @@ The output of each network, denoted by $f(p_i)$, $f(p_i^+)$, $f(p_i^-)$ is the f
 
 ### Ranking Layer
 
-The ranking layer just computes the triplet loss. It teaches the network to produce similar feature embeddings for images from the same class (and different embeddings for images from different classes). $g$ is a gap parameter used for regularization purposes.
-
-<!--$$ l(p_i, p_i^+, p_i^-) = \max \{ 0, g + D \big(f(p_i), f(p_i^+) \big) - D \big( f(p_i), f(p_i^-) \big)  \} $$-->
-
-<p align="center">
-<!--<a href="http://www.codecogs.com/eqnedit.php?latex=\dpi{100}&space;l(p_i,&space;p_i^&plus;,&space;p_i^-)&space;=&space;\max&space;\{&space;0,&space;g&space;&plus;&space;D&space;\big(f(p_i),&space;f(p_i^&plus;)&space;\big)&space;-&space;D&space;\big(&space;f(p_i),&space;f(p_i^-)&space;\big)&space;\}" target="_blank">-->
-<img src="http://latex.codecogs.com/png.latex?\dpi{100}&space;l(p_i,&space;p_i^&plus;,&space;p_i^-)&space;=&space;\max&space;\{&space;0,&space;g&space;&plus;&space;D&space;\big(f(p_i),&space;f(p_i^&plus;)&space;\big)&space;-&space;D&space;\big(&space;f(p_i),&space;f(p_i^-)&space;\big)&space;\}" title="l(p_i, p_i^+, p_i^-) = \max \{ 0, g + D \big(f(p_i), f(p_i^+) \big) - D \big( f(p_i), f(p_i^-) \big) \}" />
-<!--</a>-->
-</p>
-
-$D$ is the **Euclidean Distance** between $f(p_i)$ and $f(p_i^{+/-})$.
+The ranking layer just computes the triplet loss. It teaches the network to produce similar feature embeddings for images from the same class (and different embeddings for images from different classes).
 
 
-<!--$$ D(p, q) = \sqrt{(q_1 − p_1)^2 + (q_2 − p_2)^2 + \dots + (q_n − p_n)^2} $$-->
+$$ l(p_i, p_i^+, p_i^-) = \max \{ 0, g + D \big(f(p_i), f(p_i^+) \big) - D \big( f(p_i), f(p_i^-) \big)  \} $$
 
-<p align="center">
-<!--<a href="http://www.codecogs.com/eqnedit.php?latex=\dpi{100}&space;D(p,&space;q)&space;=&space;\sqrt{&space;(q_1&space;-&space;p_1)^2&space;&plus;&space;(q_2&space;-&space;p_2)^2&space;&plus;&space;\cdots&space;&plus;(q_n&space;-&space;p_n)^2&space;}" target="_blank">-->
-<img src="http://latex.codecogs.com/png.latex?\dpi{100}&space;D(p,&space;q)&space;=&space;\sqrt{&space;(q_1&space;-&space;p_1)^2&space;&plus;&space;(q_2&space;-&space;p_2)^2&space;&plus;&space;\cdots&space;&plus;(q_n&space;-&space;p_n)^2&space;}" title="D(p, q) = \sqrt{ (q_1 - p_1)^2 + (q_2 - p_2)^2 + \cdots +(q_n - p_n)^2 }" />
-<!--</a>-->
-</p>
+
+$D$ is the Euclidean Distance between $f(p_i)$ and $f(p_i^{+/-})$.
+
+
+$$ D(p, q) = \sqrt{(q_1 − p_1)^2 + (q_2 − p_2)^2 + \dots + (q_n − p_n)^2} $$
+
 
 $g$ is the gap parameter that regularizes the gap between the distance of two image pairs: $(p_i, p_i^+)$ and $(p_i, p_i^-)$. We use the default value of $1.0$, but you can tune it if you’d like (make sure it's positive).
 
