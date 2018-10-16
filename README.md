@@ -12,6 +12,7 @@
     - [Testing stage](#testing-stage)
     - [Triplet Sampling Layer](#triplet-sampling-layer)
     - [Tips](#tips)
+- [Implementation Details](#implementation-details)
 - [References](#references)
 
 
@@ -90,9 +91,77 @@ Negative samples are composed of two different types of samples: in-class and ou
 
 1. We recommend you use the ResNet architecture you implemented in your previous homework.
 2. Use the data loader - it'll help a lot in loading the images in parallel (there is a `num_workers` option)
-3. Sample your triplets beforehand, so during training all you’re doing is reading images.
+3. Sample your triplets beforehand, so during training all you're doing is reading images.
 4. Make sure you load your model with pre-trained weights. This will greatly reduce the time to train your ranking network.
 5. Blue Waters training time is approximate 24-36 hours, so please start early.
+
+
+## Implementation Details
+
+### Hyper-parameters settings
+
+
+|                 Hyper-parameters                	|                 Description                 	|
+|:-----------------------------------------------:	|:-------------------------------------------:	|
+|                     lr=0.001                    	|                learning rate                	|
+|                   momentum=0.9                  	|               momentum factor               	|
+|                  nesterov=True                  	|              Nesterov momentum              	|
+|                weight\_decay=1e-5               	|          weight decay (L2 penalty)          	|
+|                    epochs=50                    	|          number of epochs to train          	|
+|              batch\_size\_train=150             	|        training set input batch size        	|
+|              batch\_size\_test=150              	|          test set input batch size          	|
+| num\_of\_pos\_images / num\_of\_neg\_images = 3 	| number of p / n images for each query image 	|
+|                      g=1.0                      	|                gap parameter                	|
+
+
+### Optimizer and loss function
+
+
+### Model architecture
+
+
+
+### Sampling strategies
+
+Since we have used the simplified version of sampling method as follows:
+
+- $p_i$: Input to the $Q$ (Query) network. This image is randomly sampled across any class.
+- $p_i^+$: Input to the $P$ (Positive) network. This image is randomly sampled from the **SAME** class as the query image.
+- $p_i^-$: Input to the $N$ (Negative) network. This image is randomly sample from any class **EXCEPT** the class of $p_i$.
+
+I have created a file named [`sampler.py`]() which is aimed to random sampling positive images and negative images for each query image.
+
+```
+$ python3 sampler.py
+Input Directory: ../tiny-imagenet-200/train
+Output Directory: ../
+Number of Positive image per Query image:  3
+Number of Negative image per Query image:  3
+==> Sampling Done ... Now Writing ...
+```
+
+[`triplets.txt`]() looks like this:
+
+```
+../tiny-imagenet-200/train/n01443537/images/n01443537_0.JPEG,../tiny-imagenet-200/train/n01443537/images/n01443537_219.JPEG,../tiny-imagenet-200/train/n04376876/images/n04376876_418.JPEG
+../tiny-imagenet-200/train/n01443537/images/n01443537_0.JPEG,../tiny-imagenet-200/train/n01443537/images/n01443537_219.JPEG,../tiny-imagenet-200/train/n02948072/images/n02948072_159.JPEG
+../tiny-imagenet-200/train/n01443537/images/n01443537_0.JPEG,../tiny-imagenet-200/train/n01443537/images/n01443537_219.JPEG,../tiny-imagenet-200/train/n04099969/images/n04099969_450.JPEG
+```
+
+### Visualization
+
+I planned to create visulization in [Visdom](https://github.com/facebookresearch/visdom). Feel free to use the [VisdomLinePlotter](https://github.com/andreasveit/triplet-network-pytorch/blob/master/train.py#L216) to create your own records of training progress.
+
+#### Training loss and accuracy
+
+<p align="center">
+<img src="" width="">
+</p>
+
+
+#### Query results
+
+
 
 
 ## References
