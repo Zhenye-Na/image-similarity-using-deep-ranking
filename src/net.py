@@ -43,14 +43,42 @@ def resnet101(pretrained=True):
 #     resnet = resnet101()
 
 
+class TripletNet(nn.Module):
+    """Triplet Network."""
+    def __init__(self, embeddingnet):
+        """Triplet Network Builder."""
+        super(TripletNet, self).__init__()
+        self.embeddingnet = embeddingnet
 
-class Network(nn.Module):
-    """docstring for Network."""
+    def forward(self, a, p, n):
+        """Forward pass."""
+
+        # anchor
+        embedded_a = self.embeddingnet(a)
+
+        # positive examples
+        embedded_p = self.embeddingnet(p)
+
+        # negative examples
+        embedded_n = self.embeddingnet(n)
+
+        # dist_a = F.pairwise_distance(embedded_x, embedded_y, 2)
+        # dist_b = F.pairwise_distance(embedded_x, embedded_z, 2)
+        # dist_a, dist_b,
+
+        # return embedded_x, embedded_y, embedded_z
+        return embedded_a, embedded_p, embedded_n
+
+
+
+class EmbeddingNet(nn.Module):
+    """docstring for EmbeddingNet."""
+
     def __init__(self, convnet):
         """Initialize Network model in Deep Ranking."""
-        super(Network, self).__init__()
+        super(EmbeddingNet, self).__init__()
 
-        # self.fc2 = nn.Linear(4096, 4096)
+        self.convnet = convnet
 
         self.net1 = nn.Sequential(
             nn.Conv2d(in_channels=3, out_channels=96, kernel_size=8, stride=16, padding=1),
@@ -73,7 +101,7 @@ class Network(nn.Module):
 
     def forward(self, x):
         """Forward pass."""
-        out1 = convnet.forward(x)
+        out1 = self.convnet.forward(x)
         norm1 = F.normalize(out1, p=2, dim=1)
 
         out2 = self.net1(x)
@@ -94,7 +122,7 @@ class ConvNet(nn.Module):
     """ConvNet using ResNet model."""
 
     def __init__(self, resnet):
-        """Initialize Fine-tune ResNet model."""
+        """Initialize ResNet model."""
         super(ConvNet, self).__init__()
 
         # Everything except the last linear layer
