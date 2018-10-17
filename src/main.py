@@ -16,6 +16,7 @@ import torchvision.transforms as transforms
 
 import argparse
 
+from torchsummary import summary
 from utils import TinyImageNetLoader, train
 from net import *
 
@@ -33,8 +34,8 @@ parser.add_argument('--momentum', type=float, default=0.9, help='momentum factor
 parser.add_argument('--nesterov', type=bool, default=True, help='enables Nesterov momentum')
 parser.add_argument('--weight_decay', type=float, default=1e-5, help='weight decay (L2 penalty)')
 parser.add_argument('--epochs', type=int, default=50, help='number of epochs to train')
-parser.add_argument('--batch_size_train', type=int, default=150, help='training set input batch size')
-parser.add_argument('--batch_size_test', type=int, default=150, help='test set input batch size')
+parser.add_argument('--batch_size_train', type=int, default=30, help='training set input batch size')
+parser.add_argument('--batch_size_test', type=int, default=30, help='test set input batch size')
 parser.add_argument('--start_epoch', type=int, default=0, help='starting epoch')
 
 # loss function settings
@@ -43,7 +44,7 @@ parser.add_argument('--p', type=int, default=2, help='norm degree for pairwise d
 
 # training settings
 parser.add_argument('--resume', type=bool, default=False, help='whether re-training from ckpt')
-parser.add_argument('--is_gpu', type=bool, default=False, help='whether training using GPU')
+parser.add_argument('--is_gpu', type=bool, default=True, help='whether training using GPU')
 
 # model_urls
 parser.add_argument('--model_url', type=str, default="https://download.pytorch.org/models/resnet18-5c106cde.pth", help='model url of resnet-18')
@@ -67,7 +68,10 @@ def main():
     else:
         # start over
         print('==> Building new TripletNet model ...')
-        net = TripletNet(EmbeddingNet(resnet101()))
+        net = TripletNet(resnet101())
+
+    print(net)
+    summary(net, (3, 224, 224))
 
     print("==> Initialize CUDA support for TripletNet model ...")
 
@@ -94,8 +98,7 @@ def main():
     trainloader, testloader = TinyImageNetLoader(args.trainroot, args.trainroot, args.batch_size_train, args.batch_size_test)
 
     # train model
-    train(net, criterion, optimizer, scheduler, trainloader, testloader, args.start_epoch, args.epochs, args.is_gpu)
-
+    train(net, criterion, optimizer, scheduler, trainloader, args.start_epoch, args.epochs, args.is_gpu)
 
 
 if __name__ == '__main__':

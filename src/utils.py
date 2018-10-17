@@ -41,13 +41,13 @@ def TinyImageNetLoader(trainroot, test_root, batch_size_train, batch_size_test):
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
 
-    # # Normalize test set same as training set without augmentation
-    # transform_test = transforms.Compose([
-    #     transforms.Resize(224),
-    #     transforms.CenterCrop(224),
-    #     transforms.ToTensor(),
-    #     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-    # ])
+    # Normalize test set same as training set without augmentation
+    transform_test = transforms.Compose([
+        transforms.Resize(224),
+        transforms.CenterCrop(224),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    ])
 
     # Loading Tiny ImageNet dataset
     print("==> Preparing Tiny ImageNet dataset ...")
@@ -55,10 +55,10 @@ def TinyImageNetLoader(trainroot, test_root, batch_size_train, batch_size_test):
     trainset = TripletImageLoader(base_path=trainroot, triplets_filename="../triplets.txt", transform=transform_train)
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size_train, num_workers=32)
 
-    # testset = TripletImageLoader(root=test_root, transform=transform_test)
-    # testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size_test, num_workers=32)
+    testset = TripletImageLoader(root=test_root, transform=transform_test, train=False)
+    testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size_test, num_workers=32)
 
-    return trainloader
+    return trainloader, testloader
 
 
 def train(net, criterion, optimizer, scheduler, trainloader,
@@ -108,10 +108,10 @@ def train(net, criterion, optimizer, scheduler, trainloader,
         running_loss /= len(trainloader)
 
         # Calculate training/test set accuracy of the existing model
-        train_accuracy = calculate_accuracy(net, trainloader, is_gpu)
-        test_accuracy = calculate_accuracy(net, testloader, is_gpu)
+        # train_accuracy = calculate_accuracy(net, trainloader, is_gpu)
+        # test_accuracy = calculate_accuracy(net, testloader, is_gpu)
 
-        print("Training Epoch: {0} | Loss: {1} | Training Acc: {2}% | Test Acc: {3}%".format(epoch+1, running_loss, train_accuracy, test_accuracy))
+        print("Training Epoch: {0} | Loss: {1}".format(epoch+1, running_loss))
 
         # save model in every epoch
         print('==> Saving model ...')
@@ -126,7 +126,7 @@ def train(net, criterion, optimizer, scheduler, trainloader,
     print('==> Finished Training ...')
 
 
-def calculate_accuracy(net, loader, is_gpu):
+def calculate_accuracy(net, trainloader, testloader is_gpu):
     """
     Calculate accuracy for TripletNet model.
 
@@ -144,7 +144,42 @@ def calculate_accuracy(net, loader, is_gpu):
     P.S. - Kd-trees sounds like a good idea as well.
 
     """
-    pass
+    embedded_features =
+
+    for data1, data2, data3 in trainloader:
+
+        if is_gpu:
+            data1, data2, data3 = data1.cuda(), data2.cuda(), data3.cuda()
+
+        # wrap in torch.autograd.Variable
+        data1, data2, data3 = Variable(data1), Variable(data2), Variable(data3)
+
+        # compute output
+        embedded_a, _, _ = net(data1, data2, data3)
+
+
+
+
+
+    # TODO: 1. Form 2d array: Number of training images * size of embedding
+    matrix = np.zeros(900000, 4096))
+
+
+    # TODO: 2. For a single test embedding, repeat the embedding so that it's the same size as the array in 1)
+
+
+
+    # TODO: 3. Perform subtraction between the two 2D arrays
+
+
+
+    # TODO: 4, Take L2 norm of the 2d array (after subtraction)
+
+
+    # TODO: 5. Get the 30 min values (argmin might do the trick)
+
+
+    # TODO: 6. Repeat for the rest of the embeddings in the test set
 
 
 
@@ -160,20 +195,20 @@ def calculate_distance(i1, i2):
     return np.sum((i1 - i2) ** 2)
 
 
-def preprocess(file="../tiny-imagenet-200/words.txt"):
-    """
-    Preprocess reading training images and labels.
-
-    Args:
-        file: txt file containing images directory and labels
-    Returns:
-        lines: list of lists which contains folder names and labels
-    """
-    with open(file, 'r') as fd:
-        lines = [ line.strip().split("\t") for line in fd.readlines() ]
-
-    # lines[0] is the directory name of images in classes included in lines[1]
-    for line in lines:
-        line[1] = line[1].split(", ")
-
-    return lines
+# def preprocess(file="../tiny-imagenet-200/words.txt"):
+#     """
+#     Preprocess reading training images and labels.
+#
+#     Args:
+#         file: txt file containing images directory and labels
+#     Returns:
+#         lines: list of lists which contains folder names and labels
+#     """
+#     with open(file, 'r') as fd:
+#         lines = [ line.strip().split("\t") for line in fd.readlines() ]
+#
+#     # lines[0] is the directory name of images in classes included in lines[1]
+#     for line in lines:
+#         line[1] = line[1].split(", ")
+#
+#     return lines
