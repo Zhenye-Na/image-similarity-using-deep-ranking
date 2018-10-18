@@ -6,7 +6,9 @@ references: https://static.googleusercontent.com/media/research.google.com/en//p
 @author: Zhenye Na
 """
 
+import os
 import sys
+import shutil
 import numpy as np
 
 import torch
@@ -14,12 +16,13 @@ import torchvision
 import torch.utils.data
 import torchvision.transforms as transforms
 
+from numpy import linalg as LA
 from torch.autograd import Variable
 
 from imageloader import TripletImageLoader
 
 
-def TinyImageNetLoader(trainroot, test_root, batch_size_train, batch_size_test):
+def TinyImageNetLoader(root, batch_size_train, batch_size_test):
     """
     Tiny ImageNet Loader.
 
@@ -52,10 +55,10 @@ def TinyImageNetLoader(trainroot, test_root, batch_size_train, batch_size_test):
     # Loading Tiny ImageNet dataset
     print("==> Preparing Tiny ImageNet dataset ...")
 
-    trainset = TripletImageLoader(base_path=trainroot, triplets_filename="../triplets.txt", transform=transform_train)
+    trainset = TripletImageLoader(base_path=root, triplets_filename="../triplets.txt", transform=transform_train)
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size_train, num_workers=32)
 
-    testset = TripletImageLoader(root=test_root, transform=transform_test, train=False)
+    testset = TripletImageLoader(base_path=root, triplets_filename="", transform=transform_test, train=False)
     testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size_test, num_workers=32)
 
     return trainloader, testloader
@@ -80,6 +83,8 @@ def train(net, criterion, optimizer, scheduler, trainloader,
 
     # how many batches to wait before logging training status
     log_interval = 20
+    best_acc = 0
+
     net.train()
     for epoch in range(start_epoch, epochs + start_epoch):
 
@@ -113,20 +118,31 @@ def train(net, criterion, optimizer, scheduler, trainloader,
 
         print("Training Epoch: {0} | Loss: {1}".format(epoch+1, running_loss))
 
-        # save model in every epoch
-        print('==> Saving model ...')
-        state = {
-            'net': net.module if is_gpu else net,
-            'epoch': epoch,
-        }
-        if not os.path.isdir('../checkpoint'):
-            os.mkdir('../checkpoint')
-        torch.save(state, '../checkpoint/ckpt.t7')
+
+        # remember best acc and save checkpoint
+        is_best = test_accuracy > best_acc
+        best_acc = max(test_accuracy, best_acc)
+        save_checkpoint({
+            'epoch': epoch + 1,
+            'state_dict': net.state_dict(),
+            'best_prec1': best_acc,
+        }, is_best)
+
+
+        # # save model in every epoch
+        # print('==> Saving model ...')
+        # state = {
+        #     'net': net.module if is_gpu else net,
+        #     'epoch': epoch,
+        # }
+        # if not os.path.isdir('../checkpoint'):
+        #     os.mkdir('../checkpoint')
+        # torch.save(state, '../checkpoint/ckpt.t7')
 
     print('==> Finished Training ...')
 
 
-def calculate_accuracy(net, trainloader, testloader is_gpu):
+def calculate_accuracy(net, trainloader, testloader, is_gpu):
     """
     Calculate accuracy for TripletNet model.
 
@@ -144,7 +160,7 @@ def calculate_accuracy(net, trainloader, testloader is_gpu):
     P.S. - Kd-trees sounds like a good idea as well.
 
     """
-    embedded_features =
+    embedded_features = []
 
     for data1, data2, data3 in trainloader:
 
@@ -157,27 +173,33 @@ def calculate_accuracy(net, trainloader, testloader is_gpu):
         # compute output
         embedded_a, _, _ = net(data1, data2, data3)
 
-
-
-
+        embedded_a_numpy = embedded_a.data.cpu().numpy()
+        embedded_features.append(embedded_a_numpy)
 
     # TODO: 1. Form 2d array: Number of training images * size of embedding
-    matrix = np.zeros(900000, 4096))
-
+    embedded_features_train = np.concatenate(embedded_features, axis=0)
 
     # TODO: 2. For a single test embedding, repeat the embedding so that it's the same size as the array in 1)
+    for test_data in testloader:
 
+        if is_gpu:
+            test_data = test_data.cuda()
+        test_data = Variable(test_data)
+
+        embedded_test, _, _ = net(test_data, test_data, test_data)
+        embedded_test_numpy = embedded_test_numpy.data.cpu().numpy()
+
+        embedded_features_test = np.tile(embedded_test_numpy, (embedded_features.shape[0], 1))
 
 
     # TODO: 3. Perform subtraction between the two 2D arrays
-
-
+    embedding_diff = embedded_features_train - embedded_features_test
 
     # TODO: 4, Take L2 norm of the 2d array (after subtraction)
-
+    embedding_norm = LA.norm(embedding_diff, axis=0)
 
     # TODO: 5. Get the 30 min values (argmin might do the trick)
-
+    min_index = embedding_norm.argsort()[:30]
 
     # TODO: 6. Repeat for the rest of the embeddings in the test set
 
@@ -194,6 +216,16 @@ def calculate_distance(i1, i2):
     """
     return np.sum((i1 - i2) ** 2)
 
+
+def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
+    """Save checkpoint."""
+    directory = "../checkpoint"
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    filename = directory + filename
+    torch.save(state, filename)
+    if is_best:
+        shutil.copyfile(filename, directory + 'model_best.pth.tar')
 
 # def preprocess(file="../tiny-imagenet-200/words.txt"):
 #     """

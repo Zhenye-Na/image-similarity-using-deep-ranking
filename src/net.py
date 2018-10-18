@@ -66,7 +66,7 @@ class TripletNet(nn.Module):
 
 
 class EmbeddingNet(nn.Module):
-    """ConvNet using ResNet model."""
+    """EmbeddingNet using ResNet-101."""
 
     def __init__(self, resnet):
         """Initialize ResNet model."""
@@ -78,7 +78,7 @@ class EmbeddingNet(nn.Module):
         self.fc1 = nn.Linear(num_ftrs, 4096)
 
     def forward(self, x):
-        """Forward pass of ResNet model."""
+        """Forward pass of EmbeddingNet."""
         out = self.features(x)
         out = out.view(out.size(0), -1)
         out = self.fc1(out)
