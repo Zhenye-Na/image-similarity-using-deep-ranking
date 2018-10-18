@@ -43,7 +43,7 @@ parser.add_argument('--p', type=int, default=2, help='norm degree for pairwise d
 
 # training settings
 parser.add_argument('--resume', type=bool, default=False, help='whether re-training from ckpt')
-parser.add_argument('--is_gpu', type=bool, default=False, help='whether training using GPU')
+parser.add_argument('--is_gpu', type=bool, default=True, help='whether training using GPU')
 
 # model_urls
 parser.add_argument('--model_url', type=str, default="https://download.pytorch.org/models/resnet18-5c106cde.pth", help='model url of resnet-18')
@@ -70,8 +70,8 @@ def main():
         checkpoint = torch.load(args.ckptroot)
         args.start_epoch = checkpoint['epoch']
         best_prec1 = checkpoint['best_prec1']
-        tnet.load_state_dict(checkpoint['state_dict'])
-        print("==> Loaded checkpoint '{}' (epoch {})".format(args.resume, checkpoint['epoch']))
+        net.load_state_dict(checkpoint['state_dict'])
+        print("==> Loaded checkpoint '{}' (epoch {})".format(args.ckptroot, checkpoint['epoch']))
 
     else:
         # start over

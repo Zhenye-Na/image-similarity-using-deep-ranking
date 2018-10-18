@@ -118,26 +118,14 @@ def train(net, criterion, optimizer, scheduler, trainloader,
 
         print("Training Epoch: {0} | Loss: {1}".format(epoch+1, running_loss))
 
-
         # remember best acc and save checkpoint
-        is_best = test_accuracy > best_acc
-        best_acc = max(test_accuracy, best_acc)
+        # is_best = test_accuracy > best_acc
+        # best_acc = max(test_accuracy, best_acc)
         save_checkpoint({
             'epoch': epoch + 1,
             'state_dict': net.state_dict(),
-            'best_prec1': best_acc,
-        }, is_best)
-
-
-        # # save model in every epoch
-        # print('==> Saving model ...')
-        # state = {
-        #     'net': net.module if is_gpu else net,
-        #     'epoch': epoch,
-        # }
-        # if not os.path.isdir('../checkpoint'):
-        #     os.mkdir('../checkpoint')
-        # torch.save(state, '../checkpoint/ckpt.t7')
+            # 'best_prec1': best_acc,
+        }, False)
 
     print('==> Finished Training ...')
 
