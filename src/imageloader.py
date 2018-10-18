@@ -114,18 +114,13 @@ class TinyImageNet(Dataset):
 
     def __init__(self, root, transform=None, train=False):
         """TinyImageNet Class Builder."""
+        self.train = train
+
         self.transform = transform
         self.root = root
 
         self.train_images = []
         self.test_images = []
-
-        self.train = train
-
-        # preprocess to get folder list
-        # [[n00001740], [entity]]
-        # [[n00001930], [physical entity]]
-        # self.info = preprocess(file=os.path.join(root, "words.txt"))
 
         if self.train:
 
@@ -147,12 +142,9 @@ class TinyImageNet(Dataset):
                 # training_images = np.array(training_images)
                 self.train_images.append(training_images)
 
-
         else:
-
             # self.train_list = os.listdir(os.path.join(self.train_root, "iamges"))
             self.test_list = os.listdir(os.path.join(root, "val", "images"))
-
 
             # read test images
             for file in self.test_list:
@@ -160,8 +152,6 @@ class TinyImageNet(Dataset):
                 imgs = os.listdir(os.path.join(root, "val", "images"))
                 for img in imgs:
                     self.test_images.append(io.imread(os.path.join(path, img)))
-
-        # self.test_images = np.array(self.test_images)
 
 
     def __getitem__(self, index):
@@ -197,10 +187,6 @@ class TinyImageNet(Dataset):
                 n_img = self.transform(n_img)
 
         else:
-            pass
-
-
-
             # Return a PIL Image for later agmentation
             q_img = Image.fromarray(q_img).convert('RGB')
             p_img = Image.fromarray(p_img).convert('RGB')
@@ -210,8 +196,6 @@ class TinyImageNet(Dataset):
                 q_img = self.transform(q_img)
                 p_img = self.transform(p_img)
                 n_img = self.transform(n_img)
-
-
 
         # TODO: 3. Return a data pair (e.g. image and label).
         return q_img, p_img, n_img
