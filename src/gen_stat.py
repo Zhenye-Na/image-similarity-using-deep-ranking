@@ -17,7 +17,7 @@ def gen_mean_std():
     with open("../triplets.txt") as f:
         lines = [line.rstrip('\n').split(",") for line in f]
         for line in lines:
-            image_list.extend(line)
+            image_list.append(line[0])
 
     images = []
 
