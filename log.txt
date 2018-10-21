@@ -9,3 +9,7 @@ Training Epoch: 4 | Loss: 0.3704779542584129
 Training Epoch: 5 | Loss: 0.25893549185344295
 Training Epoch: 6 | Loss: 0.22715897708377936
 Training Epoch: 7 | Loss: 0.1774170891864568
+Training Epoch: 8 | Loss: 0.15784282175344216
+Training Epoch: 9 | Loss: 0.13782430676001808
+Training Epoch: 10 | Loss: 0.129641326097655
+Training Epoch: 11 | Loss: 0.11205299051465227
