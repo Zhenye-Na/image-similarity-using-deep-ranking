@@ -117,6 +117,16 @@ Negative samples are composed of two different types of samples: in-class and ou
 ### Optimizer and loss function
 
 
+```python
+criterion = nn.TripletMarginLoss(margin=args.g, p=args.p)
+optimizer = torch.optim.SGD(net.parameters(),
+                            lr=args.lr,
+                            momentum=args.momentum,
+                            weight_decay=args.weight_decay,
+                            nesterov=args.nesterov)
+```
+
+
 ### Model architecture
 
 ```
@@ -393,18 +403,18 @@ Since we have used the simplified version of sampling method as follows:
 - $p_i^+$: Input to the $P$ (Positive) network. This image is randomly sampled from the **SAME** class as the query image.
 - $p_i^-$: Input to the $N$ (Negative) network. This image is randomly sample from any class **EXCEPT** the class of $p_i$.
 
-I have created a file named [`sampler.py`]() which is aimed to random sampling positive images and negative images for each query image.
+I have created a file named [`sampler.py`](https://github.com/Zhenye-Na/image-ranking/blob/master/src/sampler.py) which is aimed to random sampling positive images and negative images for each query image.
 
 ```
 $ python3 sampler.py
 Input Directory: ../tiny-imagenet-200/train
 Output Directory: ../
-Number of Positive image per Query image:  3
-Number of Negative image per Query image:  3
+Number of Positive image per Query image:  1
+Number of Negative image per Query image:  1
 ==> Sampling Done ... Now Writing ...
 ```
 
-[`triplets.txt`]() looks like this:
+[`triplets.txt`](https://github.com/Zhenye-Na/image-ranking/blob/master/triplets.txt) looks like this:
 
 ```
 ../tiny-imagenet-200/train/n01443537/images/n01443537_0.JPEG,../tiny-imagenet-200/train/n01443537/images/n01443537_219.JPEG,../tiny-imagenet-200/train/n04376876/images/n04376876_418.JPEG
@@ -414,18 +424,18 @@ Number of Negative image per Query image:  3
 
 ### Visualization
 
-I planned to create visulization in [Visdom](https://github.com/facebookresearch/visdom). Feel free to use the [VisdomLinePlotter](https://github.com/andreasveit/triplet-network-pytorch/blob/master/train.py#L216) to create your own records of training progress.
-
 #### Training loss and accuracy
 
 <p align="center">
-<img src="" width="">
+  <img src="./fig/loss.png" width="80%">
 </p>
 
 
 #### Query results
 
-
+<p align="center">
+  <img src="./fig/query_result.png" width="80%">
+</p>
 
 
 ## References
@@ -433,4 +443,3 @@ I planned to create visulization in [Visdom](https://github.com/facebookresearch
 [1] Jiang Wang, Yang song, Thomas Leung, Chuck Rosenberg, Jinbin Wang, James Philbin, Bo Chen, Ying Wu. [*"Learning Fine-grained Image Similarity with Deep Ranking"*](https://arxiv.org/abs/1404.4661). arXiv:1404.4661  
 [2] Akarsh Zingade [*"Image Similarity using Deep Ranking"*](https://medium.com/@akarshzingade/image-similarity-using-deep-ranking-c1bd83855978)  
 [3] Pytorch Discussion. [Feedback on PyTorch for Kaggle competitions](https://discuss.pytorch.org/t/feedback-on-pytorch-for-kaggle-competitions/2252)  
-[4] 
