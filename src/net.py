@@ -26,7 +26,10 @@ model_urls = {
 
 
 def resnet18(model_urls, pretrained=True):
-    """Load pre-trained ResNet-18 model in Pytorch."""
+    """Constructs a ResNet-18 model.
+    Args:
+        pretrained (bool): If True, returns a model pre-trained on ImageNet
+    """
     model = torchvision.models.resnet.ResNet(torchvision.models.resnet.BasicBlock, [2, 2, 2, 2])
     if pretrained:
         model.load_state_dict(torch.utils.model_zoo.load_url(model_urls['resnet18'], model_dir='../resnet18'))
@@ -69,7 +72,7 @@ class EmbeddingNet(nn.Module):
     """EmbeddingNet using ResNet-101."""
 
     def __init__(self, resnet):
-        """Initialize ResNet model."""
+        """Initialize EmbeddingNet model."""
         super(EmbeddingNet, self).__init__()
 
         # Everything except the last linear layer
