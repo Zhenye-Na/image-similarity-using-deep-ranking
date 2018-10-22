@@ -31,6 +31,7 @@ def gen_mean_std():
 
     return mean, std
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
     mean, std = gen_mean_std()
     print(mean, std)

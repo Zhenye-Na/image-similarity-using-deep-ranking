@@ -24,7 +24,7 @@ from net import *
 parser = argparse.ArgumentParser()
 
 # directory
-parser.add_argument('--ckptroot', type=str, default="../checkpointcheckpoint.pth.tar", help='path to checkpoint')
+parser.add_argument('--ckptroot', type=str, default="../checkpoint", help='path to checkpoint')
 parser.add_argument('--dataroot', type=str, default="", help='train/val data root')
 
 # hyperparameters settings
@@ -42,11 +42,8 @@ parser.add_argument('--g', type=float, default=1.0, help='gap parameter')
 parser.add_argument('--p', type=int, default=2, help='norm degree for pairwise distance - Euclidean Distance')
 
 # training settings
-parser.add_argument('--resume', type=bool, default=True, help='whether re-training from ckpt')
+parser.add_argument('--resume', type=bool, default=False, help='whether re-training from ckpt')
 parser.add_argument('--is_gpu', type=bool, default=True, help='whether training using GPU')
-
-# model_urls
-parser.add_argument('--model_url', type=str, default="https://download.pytorch.org/models/resnet18-5c106cde.pth", help='model url of resnet-18')
 
 # parse the arguments
 args = parser.parse_args()
@@ -55,30 +52,12 @@ args = parser.parse_args()
 def main():
     """Main pipeline of Image Similarity using Deep Ranking."""
 
-    net = TripletNet(resnet101())
-
-    # For training on GPU, we need to transfer net and data onto the GPU
-    # http://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html#training-on-gpu
-    if args.is_gpu:
-        net = torch.nn.DataParallel(net).cuda()
-        cudnn.benchmark = True
-
-
     # resume training from the last time
     if args.resume:
-        # # Load checkpoint
-        # print('==> Resuming from checkpoint ...')
-        # assert os.path.isdir(
-        #     '../checkpoint'), 'Error: no checkpoint directory found!'
-        # checkpoint = torch.load(args.ckptroot)
-        # net = checkpoint['net']
-        # args.start_epoch = checkpoint['epoch']
-
         # Load checkpoint
         print('==> Resuming training from checkpoint ...')
         checkpoint = torch.load(args.ckptroot)
         args.start_epoch = checkpoint['epoch']
-        # best_prec1 = checkpoint['best_prec1']
         net.load_state_dict(checkpoint['state_dict'])
         print("==> Loaded checkpoint '{}' (epoch {})".format(args.ckptroot, checkpoint['epoch']))
 
@@ -89,6 +68,11 @@ def main():
 
     print("==> Initialize CUDA support for TripletNet model ...")
 
+    # For training on GPU, we need to transfer net and data onto the GPU
+    # http://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html#training-on-gpu
+    if args.is_gpu:
+        net = torch.nn.DataParallel(net).cuda()
+        cudnn.benchmark = True
 
     # Loss function, optimizer and scheduler
     criterion = nn.TripletMarginLoss(margin=args.g, p=args.p)
