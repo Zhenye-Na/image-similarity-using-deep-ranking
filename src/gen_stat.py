@@ -1,5 +1,5 @@
 """
-Image Similarity using Deep Ranking
+Image Similarity using Deep Ranking.
 
 references: https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/42945.pdf
 
@@ -7,12 +7,11 @@ references: https://static.googleusercontent.com/media/research.google.com/en//p
 """
 
 import numpy as np
-
 from PIL import Image
-from skimage import io
 
 
 def gen_mean_std():
+    """Generate mean and std for Tiny ImageNet dataset."""
     image_list = []
     with open("../triplets.txt") as f:
         lines = [line.rstrip('\n').split(",") for line in f]

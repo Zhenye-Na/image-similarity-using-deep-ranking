@@ -1,5 +1,5 @@
 """
-Image Similarity using Deep Ranking
+Image Similarity using Deep Ranking.
 
 references: https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/42945.pdf
 
@@ -8,7 +8,6 @@ references: https://static.googleusercontent.com/media/research.google.com/en//p
 
 from __future__ import print_function
 from PIL import Image
-from skimage import io
 
 import os
 import random
@@ -55,12 +54,13 @@ class TripletImageLoader(Dataset):
         # load test data
         else:
             singletons = []
-            test_images = os.listdir(os.path.join("../tiny-imagenet-200", "val", "images"))
+            test_images = os.listdir(os.path.join(
+                "../tiny-imagenet-200", "val", "images"))
             for test_image in test_images:
-                loaded_image = self.loader(os.path.join("../tiny-imagenet-200", "val", "images", test_image))
+                loaded_image = self.loader(os.path.join(
+                    "../tiny-imagenet-200", "val", "images", test_image))
                 singletons.append(loaded_image)
             self.singletons = singletons
-
 
     def __getitem__(self, index):
         """Get triplets in dataset."""
@@ -82,7 +82,6 @@ class TripletImageLoader(Dataset):
             if self.transform is not None:
                 img = self.transform(img)
             return img
-
 
     def __len__(self):
         if self.train_flag:

@@ -71,10 +71,13 @@ def calculate_accuracy(trainloader, testloader, is_gpu):
     t3 = time.time()
     print("Get all training images, Done ... | Time elapsed {}s".format(t3 - t2))
 
-    embedded_features_train = np.fromfile("../embedded_features_train.txt", dtype=np.float32)
+    embedded_features_train = np.fromfile(
+        "../embedded_features_train.txt", dtype=np.float32)
 
-    neigh = KNeighborsClassifier(n_neighbors=30, weights='distance', algorithm='kd_tree', n_jobs=-1)
-    neigh.fit(embedded_features_train.reshape(-1, 4096), np.array(training_images).reshape, 1)
+    neigh = KNeighborsClassifier(
+        n_neighbors=30, weights='distance', algorithm='kd_tree', n_jobs=-1)
+    neigh.fit(embedded_features_train.reshape(-1, 4096),
+              np.array(training_images).reshape, 1)
 
     # TODO: 2. For a single test embedding, repeat the embedding so that it's the same size as the array in 1)
     embedded_features_t = []
@@ -93,54 +96,9 @@ def calculate_accuracy(trainloader, testloader, is_gpu):
 
             embedded_features_t.append(embedded_test_numpy)
 
-
         embedded_features_test = np.concatenate(embedded_features_t, axis=0)
 
         print(neigh.score(embedded_features_test, training_images))
-
-
-
-
-    #         # TODO: 3. Perform subtraction between the two 2D arrays
-    #         embedding_diff = embedded_features_train - embedded_features_test
-    #
-    #         # TODO: 4, Take L2 norm of the 2d array (after subtraction)
-    #         embedding_norm = LA.norm(embedding_diff, axis=0)
-    #
-    #         # TODO: 5. Get the 30 min values (argmin might do the trick)
-    #         min_index = embedding_norm.argsort()[:30]
-    #
-    #         # TODO: 6. Repeat for the rest of the embeddings in the test set
-    #         accuracies = []
-    #
-    #         # get test image class
-    #         test_image_name = "val_" + str(test_id) + ".JPEG"
-    #         test_image_class = class_dict[test_image_name]
-    #
-    #         # for each image results in min distance
-    #         for i, idx in enumerate(min_index):
-    #             if test_id % 5 == 0 and i % 5 == 0:
-    #                 print("    Now processing {}th result of test image".format(i))
-    #
-    #             correct = 0
-    #             # get result image class
-    #             top_result_image_name = training_images[idx]
-    #             top_result_image_name_class = top_result_image_name.split("/")[3]
-    #
-    #             if test_image_class == top_result_image_name_class:
-    #                 correct += 1
-    #
-    #         acc = correct / 30
-    #         accuracies.append(acc)
-    #
-    #         with open('accuracies' + str(test_id) + '.txt', 'w') as f:
-    #             for acc in accuracies:
-    #                 f.write("%s\n" % acc)
-    #
-    # print(sum(accuracies))
-    # print(len(accuracies))
-    # avg_acc = sum(accuracies) / len(accuracies)
-    # print("Test accuracy {}%".format(avg_acc))
 
 
 def get_classes(filename="../tiny-imagenet-200/val/val_annotations.txt"):
@@ -162,21 +120,26 @@ def get_classes(filename="../tiny-imagenet-200/val/val_annotations.txt"):
 
 
 def main():
-
+    """Main pipleine for image similarity using deep ranking."""
     # Instantiate the parser
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--dataroot', type=str, default="", help='train/val data root')
-    parser.add_argument('--batch_size_train', type=int, default=25, help='training set input batch size')
-    parser.add_argument('--batch_size_test', type=int, default=1, help='test set input batch size')
+    parser.add_argument('--dataroot', type=str, default="",
+                        help='train/val data root')
+    parser.add_argument('--batch_size_train', type=int,
+                        default=25, help='training set input batch size')
+    parser.add_argument('--batch_size_test', type=int,
+                        default=1, help='test set input batch size')
 
-    parser.add_argument('--is_gpu', type=bool, default=True, help='whether training using GPU')
+    parser.add_argument('--is_gpu', type=bool, default=True,
+                        help='whether training using GPU')
 
     # parse the arguments
     args = parser.parse_args()
 
     # load triplet dataset
-    trainloader, testloader = TinyImageNetLoader(args.dataroot, args.batch_size_train, args.batch_size_test)
+    trainloader, testloader = TinyImageNetLoader(
+        args.dataroot, args.batch_size_train, args.batch_size_test)
 
     # calculate test accuracy
     calculate_accuracy(trainloader, testloader, args.is_gpu)
