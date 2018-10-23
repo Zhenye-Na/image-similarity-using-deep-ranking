@@ -47,8 +47,6 @@ def calculate_accuracy(trainloader, testloader, is_gpu):
 
     print('==> Retrieve model parameters ...')
     checkpoint = torch.load("../checkpoint/checkpointcheckpoint.pth.tar")
-    # start_epoch = checkpoint['epoch']
-    # best_prec1 = checkpoint['best_prec1']
     net.load_state_dict(checkpoint['state_dict'])
 
     net.eval()
@@ -76,7 +74,8 @@ def calculate_accuracy(trainloader, testloader, is_gpu):
                 data1, data2, data3 = data1.cuda(), data2.cuda(), data3.cuda()
 
             # wrap in torch.autograd.Variable
-            data1, data2, data3 = Variable(data1), Variable(data2), Variable(data3)
+            data1, data2, data3 = Variable(
+                data1), Variable(data2), Variable(data3)
 
             # compute output
             embedded_a, _, _ = net(data1, data2, data3)
@@ -90,7 +89,8 @@ def calculate_accuracy(trainloader, testloader, is_gpu):
     # TODO: 1. Form 2d array: Number of training images * size of embedding
     embedded_features_train = np.concatenate(embedded_features, axis=0)
 
-    embedded_features_train.astype('float32').tofile("../embedded_features_train.txt")
+    embedded_features_train.astype('float32').tofile(
+        "../embedded_features_train.txt")
 
     # embedded_features_train = np.fromfile("../embedded_features_train.txt", dtype=np.float32)
 
@@ -108,7 +108,8 @@ def calculate_accuracy(trainloader, testloader, is_gpu):
             embedded_test, _, _ = net(test_data, test_data, test_data)
             embedded_test_numpy = embedded_test.data.cpu().numpy()
 
-            embedded_features_test = np.tile(embedded_test_numpy, (embedded_features_train.shape[0], 1))
+            embedded_features_test = np.tile(
+                embedded_test_numpy, (embedded_features_train.shape[0], 1))
 
             # TODO: 3. Perform subtraction between the two 2D arrays
             embedding_diff = embedded_features_train - embedded_features_test
@@ -129,13 +130,14 @@ def calculate_accuracy(trainloader, testloader, is_gpu):
             # for each image results in min distance
             for i, idx in enumerate(min_index):
                 if test_id % 5 == 0 and i % 5 == 0:
-                    print("    Now processing {}th result of test image".format(i))
+                    print("\tNow processing {}th result of test image".format(i))
 
                 correct = 0
 
                 # get result image class
                 top_result_image_name = training_images[idx]
-                top_result_image_name_class = top_result_image_name.split("/")[3]
+                top_result_image_name_class = top_result_image_name.split(
+                    "/")[3]
 
                 if test_image_class == top_result_image_name_class:
                     correct += 1
@@ -175,21 +177,26 @@ def get_classes(filename="../tiny-imagenet-200/val/val_annotations.txt"):
 
 
 def main():
-
+    """Main pipleine for image similarity using deep ranking."""
     # Instantiate the parser
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--dataroot', type=str, default="", help='train/val data root')
-    parser.add_argument('--batch_size_train', type=int, default=25, help='training set input batch size')
-    parser.add_argument('--batch_size_test', type=int, default=25, help='test set input batch size')
+    parser.add_argument('--dataroot', type=str, default="",
+                        help='train/val data root')
+    parser.add_argument('--batch_size_train', type=int,
+                        default=25, help='training set input batch size')
+    parser.add_argument('--batch_size_test', type=int,
+                        default=25, help='test set input batch size')
 
-    parser.add_argument('--is_gpu', type=bool, default=True, help='whether training using GPU')
+    parser.add_argument('--is_gpu', type=bool, default=True,
+                        help='whether training using GPU')
 
     # parse the arguments
     args = parser.parse_args()
 
     # load triplet dataset
-    trainloader, testloader = TinyImageNetLoader(args.dataroot, args.batch_size_train, args.batch_size_test)
+    trainloader, testloader = TinyImageNetLoader(
+        args.dataroot, args.batch_size_train, args.batch_size_test)
 
     # calculate test accuracy
     calculate_accuracy(trainloader, testloader, args.is_gpu)

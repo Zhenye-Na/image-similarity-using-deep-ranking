@@ -1,15 +1,11 @@
 """
-Image Similarity using Deep Ranking
+Image Similarity using Deep Ranking.
 
 references: https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/42945.pdf
 
 @author: Zhenye Na
 """
 
-import glob
-import json
-import random
-import csv
 import os
 import re
 import argparse
@@ -33,7 +29,7 @@ def list_pictures(directory, ext='JPEG'):
 
 def get_negative_images(all_images, image_names, num_neg_images):
     """
-    Sample negative images
+    Sample negative images.
 
     Args:
         all_images:
@@ -63,7 +59,7 @@ def get_negative_images(all_images, image_names, num_neg_images):
 
 def get_positive_images(image_name, image_names, num_pos_images):
     """
-    Sample positive images
+    Sample positive images.
 
     Args:
         all_images:
@@ -73,7 +69,6 @@ def get_positive_images(image_name, image_names, num_pos_images):
     Returns:
         positive_images
     """
-
     random_numbers = np.arange(len(image_names))
     np.random.shuffle(random_numbers)
     if int(num_pos_images) > (len(image_names) - 1):
@@ -103,7 +98,7 @@ def triplet_sampler(directory_path, output_path, num_neg_images, num_pos_images)
         num_pos_images: number of Positive images per Query image
 
     Returns:
-        No return value, triplets will be written as txt file and be saved on disk.
+        No return value, triplets will be saved on disk.
     """
     classes = [d for d in os.listdir(directory_path) if os.path.isdir(
         os.path.join(directory_path, d))]
@@ -117,7 +112,7 @@ def triplet_sampler(directory_path, output_path, num_neg_images, num_pos_images)
     for class_ in classes:
         image_names = list_pictures(os.path.join(directory_path, class_))
         for image_name in image_names:
-            image_names_set = set(image_names)
+            # image_names_set = set(image_names)
             query_image = image_name
             positive_images = get_positive_images(
                 image_name, image_names, num_pos_images)
@@ -144,7 +139,8 @@ def main():
     # Instantiate the parser
     parser = argparse.ArgumentParser(description='Triplet Sampler arguments')
 
-    parser.add_argument('--input_directory', type=str, default="../tiny-imagenet-200/train",
+    parser.add_argument('--input_directory', type=str,
+                        default="../tiny-imagenet-200/train",
                         help='input directory')
 
     parser.add_argument('--output_directory', type=str, default="../",
@@ -176,11 +172,11 @@ def main():
         print('Number of Positive Images cannot be less than 1!')
 
     if not os.path.exists(args.input_directory):
-        print(args.input_directory+" path does not exist!")
+        print(args.input_directory + " path does not exist!")
         quit()
 
     if not os.path.exists(args.output_directory):
-        print(args.input_directory+" path does not exist!")
+        print(args.input_directory + " path does not exist!")
         quit()
 
     print("Input Directory: " + args.input_directory)

@@ -1,5 +1,5 @@
 """
-Image Similarity using Deep Ranking
+Image Similarity using Deep Ranking.
 
 references: https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/42945.pdf
 
@@ -10,7 +10,6 @@ import os
 import torch
 import torchvision
 import torch.nn as nn
-import torch.nn.functional as F
 import torchvision.models as models
 import torchvision.transforms as transforms
 
@@ -26,29 +25,38 @@ model_urls = {
 
 
 def resnet18(model_urls, pretrained=True):
-    """Constructs a ResNet-18 model.
+    """
+    Construct a ResNet-18 model.
+
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
-    model = torchvision.models.resnet.ResNet(torchvision.models.resnet.BasicBlock, [2, 2, 2, 2])
+    model = torchvision.models.resnet.ResNet(
+        torchvision.models.resnet.BasicBlock, [2, 2, 2, 2])
     if pretrained:
-        model.load_state_dict(torch.utils.model_zoo.load_url(model_urls['resnet18'], model_dir='../resnet18'))
+        model.load_state_dict(torch.utils.model_zoo.load_url(
+            model_urls['resnet18'], model_dir='../resnet18'))
     return EmbeddingNet(model)
 
 
 def resnet101(pretrained=False, **kwargs):
-    """Constructs a ResNet-101 model.
+    """
+    Construct a ResNet-101 model.
+
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
-    model = torchvision.models.resnet.ResNet(torchvision.models.resnet.BasicBlock, [3, 4, 23, 3])
+    model = torchvision.models.resnet.ResNet(
+        torchvision.models.resnet.BasicBlock, [3, 4, 23, 3])
     if pretrained:
-        model.load_state_dict(model_zoo.load_url(model_urls['resnet101'], model_dir='../resnet101'))
+        model.load_state_dict(torch.utils.model_zoo.load_url(
+            model_urls['resnet101'], model_dir='../resnet101'))
     return EmbeddingNet(model)
 
 
 class TripletNet(nn.Module):
     """Triplet Network."""
+
     def __init__(self, embeddingnet):
         """Triplet Network Builder."""
         super(TripletNet, self).__init__()
