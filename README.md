@@ -89,11 +89,10 @@ Negative samples are composed of two different types of samples: in-class and ou
 
 ### Tips
 
-1. We recommend you use the ResNet architecture you implemented in your previous homework.
+1. use the ResNet architecture instead of the multiscale network.
 2. Use the data loader - it'll help a lot in loading the images in parallel (there is a `num_workers` option)
-3. Sample your triplets beforehand, so during training all you're doing is reading images.
-4. Make sure you load your model with pre-trained weights. This will greatly reduce the time to train your ranking network.
-5. Blue Waters training time is approximate 24-36 hours, so please start early.
+3. Sample triplets beforehand, so during training all you're doing is reading images.
+4. Make sure load your model with pre-trained weights. This will greatly reduce the time to train your ranking network.
 
 
 ## Implementation Details

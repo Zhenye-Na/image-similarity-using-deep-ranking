@@ -10,7 +10,6 @@ from __future__ import print_function
 from PIL import Image
 
 import os
-import random
 import numpy as np
 
 import torch.utils.data
@@ -26,7 +25,8 @@ def image_loader(path):
 class TripletImageLoader(Dataset):
     """Image Loader for Tiny ImageNet."""
 
-    def __init__(self, base_path, triplets_filename, transform=None, train=True, loader=image_loader):
+    def __init__(self, base_path, triplets_filename, transform=None,
+                 train=True, loader=image_loader):
         """
         Image Loader Builder.
 
@@ -84,6 +84,7 @@ class TripletImageLoader(Dataset):
             return img
 
     def __len__(self):
+        """Get the length of dataset."""
         if self.train_flag:
             return len(self.triplets)
         else:
