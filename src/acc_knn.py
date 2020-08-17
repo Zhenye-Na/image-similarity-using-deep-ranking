@@ -37,6 +37,8 @@ def load_train_embedding():
 def load_train_images():
     # list of traning images names, e.g., "../tiny-imagenet-200/train/n01629819/images/n01629819_238.JPEG"
     # update to get class names
+    t2 = time.time()
+    
     training_images = []
     for line in open("../triplets.txt"):
         line_array = line.split(",")
@@ -55,7 +57,7 @@ def gen_embedding(net, data, is_gpu):
     embedded_numpy = embedded.data.cpu().numpy()
     return embedded_numpy
 
-def load_net():
+def load_net(is_gpu):
     net = TripletNet(resnet101())
 
     # For training on GPU, we need to transfer net and data onto the GPU
@@ -73,29 +75,32 @@ def load_net():
     net.eval()
     return net
 
-def plot_results(query, results, images):
+def plot_results(query, top_N, results, images):
     """
-    Plot the query images and top 5 similar images
+    Plot the query image and top N similar images
     Args:
         query: path to query image
-        results: predictions from neighbour model
+        top_N: predicted top N images similar to query image
+        results: predictions from neighbor model
         images: path to embedding space images
     """
-  
-    plt.subplot(1, 6, 1)
-    plt.imshow(np.asarray(Image.open(query)))
+    fig = plt.figure()
+    ax = fig.add_subplot(1, top_N+1, 1)
+    imgplot = plt.imshow(np.asarray(Image.open(query)))
+    ax.set_title("Query")
+    
     for indx, val in enumerate(results[1][0]):
-        if indx == 6:
+        if indx == top_N:
             break
-        elif indx > 0:
-            plt.subplot(1, 6, indx+1)
+        else:
+            ax = fig.add_subplot(1, top_N+1, indx+2)
             a = np.asarray(Image.open(images[val]))
             plt.axis('off')
-            plt.imshow(a)
+            imgplot = plt.imshow(a)
     
-    plt.show()
+    fig.savefig("Image_Search_Results.jpg", bbox_inches='tight')
     
-def calculate_accuracy(trainloader, testloader, is_gpu):
+def calculate_accuracy(training_images, embedding_space, testloader, is_gpu):
     """
     Calculate accuracy for TripletNet model.
 
@@ -107,21 +112,17 @@ def calculate_accuracy(trainloader, testloader, is_gpu):
         6. Repeat for the rest of the embeddings in the test set
 
     """
-    net = load_net()
+    net = load_net(is_gpu)
 
     t1 = time.time()
     # dictionary of test images with class
     class_dict = get_classes()
     t2 = time.time()
     print("Get all test image classes, Done ... | Time elapsed {}s".format(t2 - t1))
-    
-    training_images = load_train_images()
-
-    embedded_features_train = load_train_embedding()
 
     neigh = KNeighborsClassifier(
         n_neighbors=30, weights='distance', algorithm='kd_tree', n_jobs=-1)
-    neigh.fit(embedded_features_train,
+    neigh.fit(embedding_space,
               np.array(training_images).reshape, 1)
 
     # TODO: 2. For a single test embedding, repeat the embedding so that it's the same size as the array in 1)
@@ -145,37 +146,37 @@ def train_neighbor_model(embedding_data, K=500):
     Chose nearest neighbour model becasue we can perform image similarity 
     analysis even without labeled data using embedding space as training data
     """
-    # n_neighbors is 500 because there are 200 classes and images are 100,000 in training space
+    # n_neighbors is 500 because there are 200 classes and 100,000 images in training space
     neighbor_model = NearestNeighbors(n_neighbors=500, algorithm='kd_tree', n_jobs=-1)
     neighbor_model.fit(embedding_data)
     dump(neighbor_model, 'models/neighbor_model.joblib')
     return neighbor_model
 
-def predict_unseen(test_query, is_gpu):
+def predict_unseen(test_query, top_N, training_images, embedding_space, is_gpu):
     """
     Predict similar images from embedding space
      Args:
-            test_query: Search similar images as this image
+         test_query: Search similar images as this image
+         top_N: predict top N similar images as query image
+         training_images: Training images file path
+         embedding_space: Training image's embedding from trained neural net
     Returns: void
-        plot 5 similar images as query image
+        plot top_N similar images as query image and save the results as (Image_Search_Results.jpg)
     """
-    training_images = load_train_images()
-    embedding_space = load_train_embedding()
-    
-    try:
+    if os.path.isfile('checkpoints/neighbor_model.joblib'):
         neighbor_model = load('models/neighbor_model.joblib')
-    except:
+    else:
         neighbor_model = train_neighbor_model(embedding_space)
           
     query_img = tranform_test_img(Image.open(test_query).convert('RGB')).reshape(1, 3, 224, 224)
     
-    net = load_net()
+    net = load_net(is_gpu)
     
     query_embed = gen_embedding(net, query_img, is_gpu)
     
-    predictions = neighbor_model.predict(query_embed)
+    predictions = neighbor_model.kneighbors(query_embed)
     
-    plot_results(test_query, predictions, training_images)
+    plot_results(test_query, top_N, predictions, training_images)
     
 def get_classes(filename="../tiny-imagenet-200/val/val_annotations.txt"):
     """
@@ -194,7 +195,6 @@ def get_classes(filename="../tiny-imagenet-200/val/val_annotations.txt"):
 
     return class_dict
 
-
 def main():
     """Main pipleine for image similarity using deep ranking."""
     # Instantiate the parser
@@ -202,16 +202,21 @@ def main():
 
     parser.add_argument('--dataroot', type=str, default="",
                         help='train/val data root')
-    parser.add_argument('--batch_size_train', type=int,
-                        default=25, help='training set input batch size')
-    parser.add_argument('--batch_size_test', type=int,
-                        default=1, help='test set input batch size')
+    
+    parser.add_argument('--batch_size_train', type=int, default=25, 
+                        help='training set input batch size')
+    
+    parser.add_argument('--batch_size_test', type=int, default=1, 
+                        help='test set input batch size')
 
     parser.add_argument('--is_gpu', type=bool, default=True,
                         help='whether training using GPU')
     
     parser.add_argument('--predict_similar_images', type=str, default="",
                         help='path to query image')
+    
+    parser.add_argument('--predict_top_N', type=int, default=5,
+                        help='Search top N images')
 
     # parse the arguments
     args = parser.parse_args()
@@ -219,13 +224,15 @@ def main():
     # load triplet dataset
     trainloader, testloader = TinyImageNetLoader(
         args.dataroot, args.batch_size_train, args.batch_size_test)
-
-    # calculate test accuracy
-    calculate_accuracy(trainloader, testloader, args.is_gpu)
+    
+    training_images = load_train_images()
+    embedding_space = load_train_embedding()
     
     if args.predict_similar_images != "":
-        predict_unseen(args.predict_similar_images, args.is_gpu)
+        predict_unseen(args.predict_similar_images, args.predict_top_N, training_images, embedding_space, args.is_gpu)
+    else:
+        # calculate test accuracy
+        calculate_accuracy(training_images, embedding_space, testloader, args.is_gpu)
         
-
 if __name__ == '__main__':
     main()

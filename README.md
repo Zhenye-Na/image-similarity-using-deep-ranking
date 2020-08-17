@@ -430,12 +430,27 @@ Number of Negative image per Query image:  1
 </p>
 
 
-#### Query results
+#### Image Search
+**Current Implementation**
 
+1. Compute the feature embedding of the query image.
+2. Train ```NearestNeighbor``` model with the feature embeddings of the training data (can be modified for other datasets as well).
+3. Find top ```N``` nearest neighbors of query image embedding (these are most similar images with query image from embedding space).
+
+For testing and searching: functions from [src/acc_knn.py](https://github.com/Zhenye-Na/image-similarity-using-deep-ranking/blob/master/src/acc_knn.py) can be used, explored and modified for custom use cases.
+```
+$ python3 acc_knn.py --predict_similar_images "../tiny-imagenet-200/test/images/test_9970.JPEG" --predict_top_N 5
+```
 <p align="center">
-  <img src="./fig/query_result.png" width="80%">
+  <img src="./fig/fish-results.jpg" width="80%">
 </p>
 
+```
+$ python3 acc_knn.py --predict_similar_images "../tiny-imagenet-200/test/images/test_73.JPEG" --predict_top_N 10
+```
+<p align="center">
+  <img src="./fig/car-results.jpg" width="80%">
+</p>
 
 ## References
 
