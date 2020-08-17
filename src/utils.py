@@ -139,6 +139,16 @@ def calculate_distance(i1, i2):
     """
     return np.sum((i1 - i2) ** 2)
 
+def tranform_test_img(img):
+    
+    transform_test = transforms.Compose([
+        transforms.Resize(224),
+        transforms.CenterCrop(224),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[
+                             0.229, 0.224, 0.225])
+    ])
+    return transform_test(img)
 
 def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
     """Save checkpoint."""
