@@ -1,5 +1,7 @@
 # Image Similarity using Deep Ranking
 
+> **Thanks to Haseeb (@haseeb33) for improving the accuracy calculation as well as image query feature!**
+>
 > Mathjax/Latex is heavily used in this README file. Please download [MathJax Plugin for Github](https://chrome.google.com/webstore/detail/mathjax-plugin-for-github/ioemnmodlmafdkllaclgeombjnmnbima) in order to render Mathjax/Latex in Github correctly.
 
 ## Table of contents
